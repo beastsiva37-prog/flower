@@ -1,8 +1,11 @@
 import axios from 'axios';
 
+const apiBase = import.meta.env.VITE_API_URL || 'https://flower-shop-server-u3av.onrender.com';
+const cleanBase = apiBase.endsWith('/') ? apiBase.slice(0, -1) : apiBase;
+
 // Create Axios Instance
 const API = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'https://flower-shop-server-u3av.onrender.com/api'
+  baseURL: `${cleanBase}/api`
 });
 
 // Request Interceptor to attach Authorization Header
@@ -16,5 +19,4 @@ API.interceptors.request.use((config) => {
   return Promise.reject(error);
 });
 
-export default API; // Axios client configuration for M.K. Muthusamy Flower Shop
-
+export default API;

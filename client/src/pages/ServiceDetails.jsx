@@ -4,20 +4,7 @@ import { ChevronLeft, ChevronRight, X, ShoppingBag, ArrowLeft, Star, CheckCircle
 import API from '../api/axios';
 import OrderModal from '../components/OrderModal';
 import garland2 from '../assets/garland2.png';
-
-const getImageUrl = (url) => {
-  if (!url) return '';
-  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
-    return url;
-  }
-  if (url.startsWith('/uploads/')) {
-    const backendBase = import.meta.env.VITE_API_URL 
-      ? import.meta.env.VITE_API_URL.replace(/\/api$/, '') 
-      : 'https://flower-shop-server-u3av.onrender.com';
-    return `${backendBase}${url}`;
-  }
-  return url;
-};
+import getImageUrl from '../utils/getImageUrl';
 
 
 const ServiceDetails = () => {

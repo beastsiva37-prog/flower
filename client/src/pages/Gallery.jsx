@@ -2,20 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ZoomIn, X } from 'lucide-react';
 import API from '../api/axios';
 import garland3 from '../assets/garland3.png';
-
-const getImageUrl = (url) => {
-  if (!url) return '';
-  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
-    return url;
-  }
-  if (url.startsWith('/uploads/')) {
-    const backendBase = import.meta.env.VITE_API_URL 
-      ? import.meta.env.VITE_API_URL.replace(/\/api$/, '') 
-      : 'https://flower-shop-server-u3av.onrender.com';
-    return `${backendBase}${url}`;
-  }
-  return url;
-};
+import getImageUrl from '../utils/getImageUrl';
 
 const Gallery = () => {
   const [gallery, setGallery] = useState([]);

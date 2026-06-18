@@ -1,6 +1,7 @@
 const Product = require('../models/Product');
 const fs = require('fs');
 const path = require('path');
+const { uploadBufferToCloudinary } = require('../utils/uploadToCloudinary');
 
 // Get All Products
 exports.getProducts = async (req, res) => {
@@ -30,14 +31,26 @@ exports.getProductById = async (req, res) => {
 // Upload Product Images
 exports.uploadProductImages = async (req, res) => {
   try {
+    console.log("Files received:", req.files?.length || 0);
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ message: 'No images uploaded' });
     }
-    const urls = req.files.map(file => file.path);
+
+    const uploadPromises = req.files.map(file =>
+      uploadBufferToCloudinary(file.buffer, 'flower-shop/products')
+    );
+
+    const urls = await Promise.all(uploadPromises);
+    console.log("Cloudinary URLs:", urls);
     res.json({ success: true, urls });
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ message: 'Server error: ' + err.message });
+  } catch (error) {
+    console.error("Cloudinary upload failed:", error);
+    res.status(500).json({
+      success: false,
+      message: "Upload failed",
+      error: error.message,
+      stack: process.env.NODE_ENV === "development" ? error.stack : undefined
+    });
   }
 };
 
@@ -59,7 +72,10 @@ exports.createProduct = async (req, res) => {
 
     // Process uploaded files if any (fallback)
     if (req.files && req.files.length > 0) {
-      const uploadedUrls = req.files.map(file => file.path);
+      const uploadPromises = req.files.map(file =>
+        uploadBufferToCloudinary(file.buffer, 'flower-shop/products')
+      );
+      const uploadedUrls = await Promise.all(uploadPromises);
       images = [...images, ...uploadedUrls];
       if (!imageUrl) {
         imageUrl = uploadedUrls[0];
@@ -87,7 +103,7 @@ exports.createProduct = async (req, res) => {
     const savedProduct = await newProduct.save();
     res.status(201).json(savedProduct);
   } catch (err) {
-    console.error(err.message);
+    console.error("Create product error:", err);
     res.status(500).json({ message: 'Server error: ' + err.message });
   }
 };
@@ -119,7 +135,10 @@ exports.updateProduct = async (req, res) => {
 
     // Process uploaded files (fallback)
     if (req.files && req.files.length > 0) {
-      const uploadedUrls = req.files.map(file => file.path);
+      const uploadPromises = req.files.map(file =>
+        uploadBufferToCloudinary(file.buffer, 'flower-shop/products')
+      );
+      const uploadedUrls = await Promise.all(uploadPromises);
       images = [...images, ...uploadedUrls];
     }
 
@@ -133,7 +152,7 @@ exports.updateProduct = async (req, res) => {
     const updatedProduct = await product.save();
     res.json(updatedProduct);
   } catch (err) {
-    console.error(err.message);
+    console.error("Update product error:", err);
     res.status(500).json({ message: 'Server error: ' + err.message });
   }
 };

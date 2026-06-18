@@ -12,7 +12,7 @@ router.get('/', galleryController.getGallery);
 // @route   POST api/gallery
 // @desc    Upload image to gallery
 // @access  Admin
-router.post('/', authMiddleware, upload.single('image'), galleryController.uploadImage);
+router.post('/', authMiddleware, upload.array('images', 10), galleryController.uploadImage);
 
 // @route   DELETE api/gallery/:id
 // @desc    Delete gallery item

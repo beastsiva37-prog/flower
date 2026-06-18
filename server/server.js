@@ -34,6 +34,15 @@ app.use('/api/gallery', require('./routes/galleryRoutes'));
 app.use('/api/orders', require('./routes/orderRoutes')); // Handle product/service order and contact enquiries
 app.use('/api/customers', require('./routes/customerRoutes'));
 
+// Cloudinary connection test route
+app.get('/api/cloudinary-test', (req, res) => {
+  res.json({
+    cloudNameLoaded: Boolean(process.env.CLOUDINARY_CLOUD_NAME),
+    apiKeyLoaded: Boolean(process.env.CLOUDINARY_API_KEY),
+    apiSecretLoaded: Boolean(process.env.CLOUDINARY_API_SECRET)
+  });
+});
+
 // Root Endpoint
 app.get('/', (req, res) => {
   res.send('M.K. Muthusamy Flower Shop API is running...');

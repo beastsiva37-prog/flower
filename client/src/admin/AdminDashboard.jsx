@@ -210,7 +210,7 @@ const AdminDashboard = () => {
     const formData = new FormData();
     formData.append('title', galleryForm.title);
     formData.append('description', galleryForm.description);
-    formData.append('image', galleryForm.image);
+    formData.append('images', galleryForm.image);
 
     try {
       await API.post('/gallery', formData, {
@@ -220,6 +220,7 @@ const AdminDashboard = () => {
       fetchDashboardData();
     } catch (err) {
       console.error('Error uploading gallery image:', err);
+      alert(err.response?.data?.message || err.response?.data?.error || 'Error uploading gallery image.');
     }
   };
 

@@ -69,7 +69,7 @@ const ProductForm = ({ product, onClose, onSave }) => {
       }
     } catch (err) {
       console.error('Error uploading product images:', err);
-      setError('Failed to upload images. Ensure files are images and under 10MB.');
+      setError(err.response?.data?.message || err.response?.data?.error || 'Failed to upload images. Ensure files are images and under 10MB.');
     } finally {
       setUploading(false);
     }
@@ -131,7 +131,7 @@ const ProductForm = ({ product, onClose, onSave }) => {
       onSave();
     } catch (err) {
       console.error('Error saving product:', err);
-      setError(err.response?.data?.message || 'Error saving product records.');
+      setError(err.response?.data?.message || err.response?.data?.error || 'Error saving product records.');
     }
   };
 

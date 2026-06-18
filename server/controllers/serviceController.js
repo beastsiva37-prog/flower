@@ -1,6 +1,7 @@
 const Service = require('../models/Service');
 const fs = require('fs');
 const path = require('path');
+const { uploadBufferToCloudinary } = require('../utils/uploadToCloudinary');
 
 // Get All Services
 exports.getServices = async (req, res) => {
@@ -16,14 +17,26 @@ exports.getServices = async (req, res) => {
 // Upload Service Images
 exports.uploadServiceImages = async (req, res) => {
   try {
+    console.log("Files received:", req.files?.length || 0);
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ message: 'No images uploaded' });
     }
-    const urls = req.files.map(file => file.path);
+
+    const uploadPromises = req.files.map(file =>
+      uploadBufferToCloudinary(file.buffer, 'flower-shop/services')
+    );
+
+    const urls = await Promise.all(uploadPromises);
+    console.log("Cloudinary URLs:", urls);
     res.json({ success: true, urls });
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ message: 'Server error: ' + err.message });
+  } catch (error) {
+    console.error("Cloudinary upload failed:", error);
+    res.status(500).json({
+      success: false,
+      message: "Upload failed",
+      error: error.message,
+      stack: process.env.NODE_ENV === "development" ? error.stack : undefined
+    });
   }
 };
 
@@ -44,7 +57,10 @@ exports.createService = async (req, res) => {
     }
 
     if (req.files && req.files.length > 0) {
-      const uploadedUrls = req.files.map(file => file.path);
+      const uploadPromises = req.files.map(file =>
+        uploadBufferToCloudinary(file.buffer, 'flower-shop/services')
+      );
+      const uploadedUrls = await Promise.all(uploadPromises);
       images = [...images, ...uploadedUrls];
       if (!imageUrl) {
         imageUrl = uploadedUrls[0];
@@ -72,7 +88,7 @@ exports.createService = async (req, res) => {
     const savedService = await newService.save();
     res.status(201).json(savedService);
   } catch (err) {
-    console.error(err.message);
+    console.error("Create service error:", err);
     res.status(500).json({ message: 'Server error: ' + err.message });
   }
 };
@@ -103,7 +119,10 @@ exports.updateService = async (req, res) => {
     }
 
     if (req.files && req.files.length > 0) {
-      const uploadedUrls = req.files.map(file => file.path);
+      const uploadPromises = req.files.map(file =>
+        uploadBufferToCloudinary(file.buffer, 'flower-shop/services')
+      );
+      const uploadedUrls = await Promise.all(uploadPromises);
       images = [...images, ...uploadedUrls];
     }
 
@@ -117,7 +136,7 @@ exports.updateService = async (req, res) => {
     const updatedService = await service.save();
     res.json(updatedService);
   } catch (err) {
-    console.error(err.message);
+    console.error("Update service error:", err);
     res.status(500).json({ message: 'Server error: ' + err.message });
   }
 };

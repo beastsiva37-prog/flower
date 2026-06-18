@@ -69,7 +69,7 @@ const ServiceForm = ({ service, onClose, onSave }) => {
       }
     } catch (err) {
       console.error('Error uploading service images:', err);
-      setError('Failed to upload images. Ensure files are images and under 10MB.');
+      setError(err.response?.data?.message || err.response?.data?.error || 'Failed to upload images. Ensure files are images and under 10MB.');
     } finally {
       setUploading(false);
     }
@@ -131,7 +131,7 @@ const ServiceForm = ({ service, onClose, onSave }) => {
       onSave();
     } catch (err) {
       console.error('Error saving service:', err);
-      setError(err.response?.data?.message || 'Error saving decoration service.');
+      setError(err.response?.data?.message || err.response?.data?.error || 'Error saving decoration service.');
     }
   };
 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+// Updated client/src/pages/Gallery.jsx to use the unified getImageUrl helper for Cloudinary compatibility
 import { ZoomIn, X } from 'lucide-react';
 import API from '../api/axios';
 import garland3 from '../assets/garland3.png';

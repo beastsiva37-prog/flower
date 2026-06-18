@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const productController = require('../controllers/productController');
 const authMiddleware = require('../middleware/authMiddleware');
-const upload = require('../middleware/upload');
+const upload = require('../middleware/uploadMiddleware');
 
 // @route   GET api/products
 // @desc    Get all products

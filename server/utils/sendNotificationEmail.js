@@ -18,15 +18,22 @@ const sendNotificationEmail = async (inquiryData) => {
   }
 
   try {
-    const transporter = nodemailer.createTransport({
-      host: smtpHost,
-      port: smtpPort,
-      secure: smtpPort === 465,
+    const configOptions = {
       auth: {
         user: smtpUser,
         pass: smtpPass
       }
-    });
+    };
+
+    if (smtpHost && smtpHost.toLowerCase().includes('gmail.com')) {
+      configOptions.service = 'gmail';
+    } else {
+      configOptions.host = smtpHost;
+      configOptions.port = smtpPort;
+      configOptions.secure = smtpPort === 465;
+    }
+
+    const transporter = nodemailer.createTransport(configOptions);
 
     // Verify SMTP connection configuration
     await transporter.verify();

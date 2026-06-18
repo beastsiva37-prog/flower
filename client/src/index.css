@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply font-body bg-ivory text-darktext;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading font-semibold;
+  }
+}
+
+/* Custom transitions and animations */
+.transition-custom {
+  @apply transition-all duration-300 ease-in-out;
+}
+
+@keyframes bounceSlow {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-bounce-slow {
+  animation: bounceSlow 3s infinite;
+}
+
+/* Custom Premium Navbar Styles */
+.premium-navbar {
+  background: linear-gradient(
+    135deg,
+    rgba(90, 10, 30, 0.95),
+    rgba(120, 20, 40, 0.95)
+  ) !important;
+  backdrop-filter: blur(15px) !important;
+  border-bottom: 2px solid #D4AF37 !important;
+}
+

@@ -1,0 +1,23 @@
+/* Premium Color Theme Utility Styles */
+.bg-premium-gradient {
+  background: linear-gradient(
+    135deg,
+    rgba(90, 10, 30, 0.95),
+    rgba(120, 20, 40, 0.95)
+  ) !important;
+}
+
+.premium-navbar {
+  background: linear-gradient(
+    135deg,
+    rgba(90, 10, 30, 0.95),
+    rgba(120, 20, 40, 0.95)
+  ) !important;
+  backdrop-filter: blur(15px) !important;
+  border-bottom: 2px solid #D4AF37 !important;
+}
+
+/* Custom transitions and interactive scales */
+.hover-scale-premium:hover {
+  transform: scale(1.05);
+}

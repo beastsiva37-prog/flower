@@ -33,7 +33,7 @@ exports.uploadProductImages = async (req, res) => {
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ message: 'No images uploaded' });
     }
-    const urls = req.files.map(file => `/uploads/products/${file.filename}`);
+    const urls = req.files.map(file => file.path);
     res.json({ success: true, urls });
   } catch (err) {
     console.error(err.message);
@@ -59,7 +59,7 @@ exports.createProduct = async (req, res) => {
 
     // Process uploaded files if any (fallback)
     if (req.files && req.files.length > 0) {
-      const uploadedUrls = req.files.map(file => `/uploads/products/${file.filename}`);
+      const uploadedUrls = req.files.map(file => file.path);
       images = [...images, ...uploadedUrls];
       if (!imageUrl) {
         imageUrl = uploadedUrls[0];
@@ -119,7 +119,7 @@ exports.updateProduct = async (req, res) => {
 
     // Process uploaded files (fallback)
     if (req.files && req.files.length > 0) {
-      const uploadedUrls = req.files.map(file => `/uploads/products/${file.filename}`);
+      const uploadedUrls = req.files.map(file => file.path);
       images = [...images, ...uploadedUrls];
     }
 

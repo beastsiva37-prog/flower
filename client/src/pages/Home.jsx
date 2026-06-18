@@ -5,6 +5,7 @@ import API from '../api/axios';
 import ProductCard from '../components/ProductCard';
 import ServiceCard from '../components/ServiceCard';
 import OrderModal from '../components/OrderModal';
+import flowerImage from '../assets/flower.png';
 
 const Home = () => {
   const [shop, setShop] = useState({
@@ -100,7 +101,7 @@ const Home = () => {
             <div className="relative">
               <div className="rounded-2xl overflow-hidden shadow-premium border-2 border-gold/30 h-[450px]">
                 <img 
-                  src="flower.png" 
+                  src={flowerImage} 
                   alt="Traditional flowers garland" 
                   className="w-full h-full object-cover"
                 />

@@ -1,6 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { ZoomIn, X } from 'lucide-react';
 import API from '../api/axios';
+import garland3 from '../assets/garland3.png';
+
+const getImageUrl = (url) => {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
+    return url;
+  }
+  if (url.startsWith('/uploads/')) {
+    const backendBase = import.meta.env.VITE_API_URL 
+      ? import.meta.env.VITE_API_URL.replace(/\/api$/, '') 
+      : 'https://flower-shop-server-u3av.onrender.com';
+    return `${backendBase}${url}`;
+  }
+  return url;
+};
 
 const Gallery = () => {
   const [gallery, setGallery] = useState([]);
@@ -45,11 +60,11 @@ const Gallery = () => {
                 className="relative group bg-white rounded-xl overflow-hidden border border-rosepink/15 shadow-sm hover:shadow-premium hover:-translate-y-1 transition-all duration-300 cursor-pointer h-64"
               >
                 <img 
-                  src={item.imageUrl} 
+                  src={getImageUrl(item.imageUrl)} 
                   alt={item.title} 
                   className="w-full h-full object-cover group-hover:scale-105 transition-all duration-500"
                   onError={(e) => {
-                    e.target.src = 'https://images.unsplash.com/photo-1596436889106-be35e843f974?w=500&auto=format&fit=crop&q=60';
+                    e.target.src = garland3;
                   }}
                 />
                 
@@ -91,11 +106,11 @@ const Gallery = () => {
             onClick={(e) => e.stopPropagation()}
           >
             <img 
-              src={selectedImage.imageUrl} 
+              src={getImageUrl(selectedImage.imageUrl)} 
               alt={selectedImage.title} 
               className="max-w-full max-h-[75vh] object-contain rounded"
               onError={(e) => {
-                e.target.src = 'https://images.unsplash.com/photo-1596436889106-be35e843f974?w=500&auto=format&fit=crop&q=60';
+                e.target.src = garland3;
               }}
             />
           </div>

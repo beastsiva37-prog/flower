@@ -1,6 +1,21 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Sparkles, ShoppingBag } from 'lucide-react';
+import garland2 from '../assets/garland2.png';
+
+const getImageUrl = (url) => {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
+    return url;
+  }
+  if (url.startsWith('/uploads/')) {
+    const backendBase = import.meta.env.VITE_API_URL 
+      ? import.meta.env.VITE_API_URL.replace(/\/api$/, '') 
+      : 'https://flower-shop-server-u3av.onrender.com';
+    return `${backendBase}${url}`;
+  }
+  return url;
+};
 
 const ServiceCard = ({ service, onOrder }) => {
   const { _id, serviceName, description, startingPrice, imageUrl, category } = service;
@@ -18,12 +33,12 @@ const ServiceCard = ({ service, onOrder }) => {
       {/* Service Image */}
       <div className="h-64 w-full overflow-hidden relative bg-rosepink/5">
         <img 
-          src={imageUrl} 
+          src={getImageUrl(imageUrl)} 
           alt={serviceName} 
           className="w-full h-full object-cover group-hover:scale-105 transition-all duration-500"
           onError={(e) => {
             // Fallback if image fails to load
-            e.target.src = 'https://images.unsplash.com/photo-1519741497674-611481863552?w=600&auto=format&fit=crop&q=60';
+            e.target.src = garland2;
           }}
         />
         {category && (

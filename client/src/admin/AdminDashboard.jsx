@@ -8,6 +8,23 @@ import {
 import API from '../api/axios';
 import ProductForm from './ProductForm';
 import ServiceForm from './ServiceForm';
+import garland1 from '../assets/garland1.png';
+import garland2 from '../assets/garland2.png';
+import garland3 from '../assets/garland3.png';
+
+const getImageUrl = (url) => {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
+    return url;
+  }
+  if (url.startsWith('/uploads/')) {
+    const backendBase = import.meta.env.VITE_API_URL 
+      ? import.meta.env.VITE_API_URL.replace(/\/api$/, '') 
+      : 'https://flower-shop-server-u3av.onrender.com';
+    return `${backendBase}${url}`;
+  }
+  return url;
+};
 
 const ADMIN_NAME = "siva";
 const ADMIN_PHONE = "9342913781";
@@ -600,7 +617,14 @@ const AdminDashboard = () => {
                         {products.map(p => (
                           <tr key={p._id} className="hover:bg-ivory/40">
                             <td className="px-6 py-3">
-                              <img src={p.imageUrl} alt={p.productName} className="w-12 h-12 rounded-lg object-cover bg-rosepink/5 border" />
+                              <img 
+                                src={getImageUrl(p.imageUrl)} 
+                                alt={p.productName} 
+                                className="w-12 h-12 rounded-lg object-cover bg-rosepink/5 border" 
+                                onError={(e) => {
+                                  e.target.src = garland1;
+                                }}
+                              />
                             </td>
                             <td className="px-6 py-4 font-semibold text-maroon">{p.productName}</td>
                             <td className="px-6 py-4">{p.category}</td>
@@ -671,7 +695,14 @@ const AdminDashboard = () => {
                         {services.map(s => (
                           <tr key={s._id} className="hover:bg-ivory/40">
                             <td className="px-6 py-3">
-                              <img src={s.imageUrl} alt={s.serviceName} className="w-12 h-12 rounded-lg object-cover bg-rosepink/5 border" />
+                              <img 
+                                src={getImageUrl(s.imageUrl)} 
+                                alt={s.serviceName} 
+                                className="w-12 h-12 rounded-lg object-cover bg-rosepink/5 border" 
+                                onError={(e) => {
+                                  e.target.src = garland2;
+                                }}
+                              />
                             </td>
                             <td className="px-6 py-4 font-semibold text-maroon">{s.serviceName}</td>
                             <td className="px-6 py-4 text-xs max-w-xs truncate">{s.description}</td>
@@ -754,7 +785,14 @@ const AdminDashboard = () => {
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
                   {gallery.map(item => (
                     <div key={item._id} className="relative group bg-white rounded-xl overflow-hidden border shadow-sm h-56">
-                      <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover" />
+                      <img 
+                        src={getImageUrl(item.imageUrl)} 
+                        alt={item.title} 
+                        className="w-full h-full object-cover" 
+                        onError={(e) => {
+                          e.target.src = garland3;
+                        }}
+                      />
                       <div className="absolute inset-0 bg-maroon/75 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4 text-white">
                         <h4 className="font-bold text-gold text-sm truncate">{item.title}</h4>
                         <button 

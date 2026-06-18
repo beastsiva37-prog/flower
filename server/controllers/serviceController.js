@@ -19,7 +19,7 @@ exports.uploadServiceImages = async (req, res) => {
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ message: 'No images uploaded' });
     }
-    const urls = req.files.map(file => `/uploads/services/${file.filename}`);
+    const urls = req.files.map(file => file.path);
     res.json({ success: true, urls });
   } catch (err) {
     console.error(err.message);
@@ -44,7 +44,7 @@ exports.createService = async (req, res) => {
     }
 
     if (req.files && req.files.length > 0) {
-      const uploadedUrls = req.files.map(file => `/uploads/services/${file.filename}`);
+      const uploadedUrls = req.files.map(file => file.path);
       images = [...images, ...uploadedUrls];
       if (!imageUrl) {
         imageUrl = uploadedUrls[0];
@@ -103,7 +103,7 @@ exports.updateService = async (req, res) => {
     }
 
     if (req.files && req.files.length > 0) {
-      const uploadedUrls = req.files.map(file => `/uploads/services/${file.filename}`);
+      const uploadedUrls = req.files.map(file => file.path);
       images = [...images, ...uploadedUrls];
     }
 

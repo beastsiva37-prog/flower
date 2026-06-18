@@ -1,6 +1,21 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingBag } from 'lucide-react';
+import garland1 from '../assets/garland1.png';
+
+const getImageUrl = (url) => {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
+    return url;
+  }
+  if (url.startsWith('/uploads/')) {
+    const backendBase = import.meta.env.VITE_API_URL 
+      ? import.meta.env.VITE_API_URL.replace(/\/api$/, '') 
+      : 'https://flower-shop-server-u3av.onrender.com';
+    return `${backendBase}${url}`;
+  }
+  return url;
+};
 
 const ProductCard = ({ product, onOrder }) => {
   const { _id, productName, category, description, price, imageUrl, isAvailable } = product;
@@ -10,11 +25,11 @@ const ProductCard = ({ product, onOrder }) => {
       {/* Product Image Link */}
       <Link to={`/products/${_id}`} className="block h-56 w-full overflow-hidden relative bg-rosepink/5">
         <img 
-          src={imageUrl} 
+          src={getImageUrl(imageUrl)} 
           alt={productName} 
           className="w-full h-full object-cover group-hover:scale-110 transition-all duration-500"
           onError={(e) => {
-            e.target.src = 'https://images.unsplash.com/photo-1596436889106-be35e843f974?w=500&auto=format&fit=crop&q=60';
+            e.target.src = garland1;
           }}
         />
         <span className="absolute top-3 right-3 bg-maroon text-gold font-semibold text-xs px-3 py-1 rounded-full uppercase tracking-wider z-10 border border-gold/30">

@@ -3,6 +3,21 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, X, ShoppingBag, ArrowLeft, Star, CheckCircle2, AlertTriangle, Image as ImageIcon } from 'lucide-react';
 import API from '../api/axios';
 import OrderModal from '../components/OrderModal';
+import garland2 from '../assets/garland2.png';
+
+const getImageUrl = (url) => {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
+    return url;
+  }
+  if (url.startsWith('/uploads/')) {
+    const backendBase = import.meta.env.VITE_API_URL 
+      ? import.meta.env.VITE_API_URL.replace(/\/api$/, '') 
+      : 'https://flower-shop-server-u3av.onrender.com';
+    return `${backendBase}${url}`;
+  }
+  return url;
+};
 
 
 const ServiceDetails = () => {
@@ -103,7 +118,7 @@ const ServiceDetails = () => {
         const uniqueImages = [...new Set(collectedImages)].filter(Boolean);
 
         // Set related photos
-        setRelatedPhotos(uniqueImages.slice(0, 8));
+        setRelatedPhotos(uniqueImages.map(getImageUrl).slice(0, 8));
       }
     } catch (err) {
       console.error('Error fetching service details:', err);
@@ -160,8 +175,8 @@ const ServiceDetails = () => {
   }
 
   // Get gallery list using strictly database images
-  const mainGalleryImages = service.images && service.images.length > 0 ? service.images : [service.imageUrl];
-  const activeImage = mainGalleryImages[activeImageIndex] || service.imageUrl;
+  const mainGalleryImages = (service.images && service.images.length > 0 ? service.images : [service.imageUrl]).map(getImageUrl);
+  const activeImage = mainGalleryImages[activeImageIndex] || getImageUrl(service.imageUrl);
 
   // Next/Previous navigation indexes
   const currentIndex = servicesList.findIndex(s => s._id === service._id);
@@ -229,6 +244,9 @@ const ServiceDetails = () => {
                   src={activeImage} 
                   alt={service.serviceName} 
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  onError={(e) => {
+                    e.target.src = garland2;
+                  }}
                 />
                 
                 {/* Floating category */}
@@ -395,7 +413,7 @@ const ServiceDetails = () => {
                 >
                   <div className="h-56 w-full overflow-hidden relative bg-rosepink/5">
                     <img 
-                      src={item.imageUrl} 
+                      src={getImageUrl(item.imageUrl)} 
                       alt={item.serviceName} 
                       className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-500"
                     />
@@ -463,7 +481,7 @@ const ServiceDetails = () => {
           {/* Large Image */}
           <div className="max-w-4xl max-h-[85vh] w-full flex items-center justify-center">
             <img 
-              src={lightboxImages[lightboxIndex] || service.imageUrl} 
+              src={lightboxImages[lightboxIndex] || getImageUrl(service.imageUrl)} 
               alt="Decoration design lightbox view"
               className="max-w-full max-h-[85vh] object-contain rounded-lg border border-white/10 shadow-2xl"
             />

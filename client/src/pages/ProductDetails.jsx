@@ -4,6 +4,21 @@ import { ChevronLeft, ChevronRight, X, ShoppingBag, ArrowLeft, Star, CheckCircle
 import API from '../api/axios';
 import OrderModal from '../components/OrderModal';
 import ProductCard from '../components/ProductCard';
+import garland1 from '../assets/garland1.png';
+
+const getImageUrl = (url) => {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
+    return url;
+  }
+  if (url.startsWith('/uploads/')) {
+    const backendBase = import.meta.env.VITE_API_URL 
+      ? import.meta.env.VITE_API_URL.replace(/\/api$/, '') 
+      : 'https://flower-shop-server-u3av.onrender.com';
+    return `${backendBase}${url}`;
+  }
+  return url;
+};
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -110,8 +125,8 @@ const ProductDetails = () => {
   }
 
   // Get gallery list using strictly database images
-  const galleryImages = product.images && product.images.length > 0 ? product.images : [product.imageUrl];
-  const activeImage = galleryImages[activeImageIndex] || product.imageUrl;
+  const galleryImages = (product.images && product.images.length > 0 ? product.images : [product.imageUrl]).map(getImageUrl);
+  const activeImage = galleryImages[activeImageIndex] || getImageUrl(product.imageUrl);
 
   return (
     <div className="pt-28 pb-20 bg-ivory min-h-screen font-body text-darktext text-sm">
@@ -151,6 +166,9 @@ const ProductDetails = () => {
                   src={activeImage} 
                   alt={product.productName} 
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  onError={(e) => {
+                    e.target.src = garland1;
+                  }}
                 />
                 
                 {/* Floating category */}
@@ -300,7 +318,7 @@ const ProductDetails = () => {
           {/* Large Image */}
           <div className="max-w-4xl max-h-[85vh] w-full flex items-center justify-center">
             <img 
-              src={galleryImages[lightboxIndex] || product.imageUrl} 
+              src={galleryImages[lightboxIndex] || getImageUrl(product.imageUrl)} 
               alt={`${product.productName} lightbox view`}
               className="max-w-full max-h-[85vh] object-contain rounded-lg border border-white/10 shadow-2xl"
             />

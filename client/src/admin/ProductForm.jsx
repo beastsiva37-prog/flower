@@ -2,6 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { X, Upload, ArrowLeft, ArrowRight, Image as ImageIcon, Sparkles, AlertCircle } from 'lucide-react';
 import API from '../api/axios';
 
+const getImageUrl = (url) => {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
+    return url;
+  }
+  if (url.startsWith('/uploads/')) {
+    const backendBase = import.meta.env.VITE_API_URL 
+      ? import.meta.env.VITE_API_URL.replace(/\/api$/, '') 
+      : 'https://flower-shop-server-u3av.onrender.com';
+    return `${backendBase}${url}`;
+  }
+  return url;
+};
+
 const ProductForm = ({ product, onClose, onSave }) => {
   const [productName, setProductName] = useState('');
   const [category, setCategory] = useState('Garland');
@@ -259,7 +273,7 @@ const ProductForm = ({ product, onClose, onSave }) => {
                   >
                     {/* Preview Image */}
                     <div className="aspect-square w-full rounded-lg overflow-hidden bg-gray-100">
-                      <img src={url} alt={`Preview ${idx + 1}`} className="w-full h-full object-cover" />
+                      <img src={getImageUrl(url)} alt={`Preview ${idx + 1}`} className="w-full h-full object-cover" />
                     </div>
 
                     {/* Actions */}

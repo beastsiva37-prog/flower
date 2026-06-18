@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ShieldCheck, Heart, User, Sparkles } from 'lucide-react';
 import API from '../api/axios';
+import aboutImage from '../assets/about.png';
 
 const About = () => {
   const [shop, setShop] = useState({
@@ -56,7 +57,7 @@ const About = () => {
           <div>
             <div className="rounded-2xl overflow-hidden shadow-premium border border-rosepink/25 h-[400px]">
               <img 
-                src="about.png" 
+                src={aboutImage} 
                 alt="Beautiful Indian temple flowers" 
                 className="w-full h-full object-cover"
               />

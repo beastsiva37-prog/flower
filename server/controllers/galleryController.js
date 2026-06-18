@@ -22,7 +22,7 @@ exports.uploadImage = async (req, res) => {
       return res.status(400).json({ message: 'Gallery image is required' });
     }
 
-    const imageUrl = `/uploads/${req.file.filename}`;
+    const imageUrl = req.file.path;
 
     const newGalleryItem = new GalleryItem({
       title,

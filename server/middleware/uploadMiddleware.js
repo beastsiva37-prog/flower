@@ -1,22 +1,24 @@
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinary = require('../config/cloudinary');
 
-// Ensure uploads directory exists
-const uploadDir = path.join(__dirname, '../uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-// Storage Configuration
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    // Generate unique name: fieldname-timestamp.ext
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+// Storage Configuration using Cloudinary
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: async (req, file) => {
+    let folderName = 'flower_shop';
+    if (req.originalUrl.includes('products')) {
+      folderName = 'flower_shop/products';
+    } else if (req.originalUrl.includes('services')) {
+      folderName = 'flower_shop/services';
+    } else if (req.originalUrl.includes('gallery')) {
+      folderName = 'flower_shop/gallery';
+    }
+    return {
+      folder: folderName,
+      allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'gif'],
+      resource_type: 'auto'
+    };
   }
 });
 
@@ -24,17 +26,16 @@ const storage = multer.diskStorage({
 const fileFilter = (req, file, cb) => {
   const filetypes = /jpeg|jpg|png|webp|gif/;
   const mimetype = filetypes.test(file.mimetype);
-  const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
 
-  if (mimetype && extname) {
+  if (mimetype) {
     return cb(null, true);
   }
-  cb(new Error('Only image files (jpg, jpeg, png, webp, gif) are allowed!'));
+  cb(new Error('Only image files (jpg, jpeg, png, webp, gif) are allowed!'), false);
 };
 
 const upload = multer({
   storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
   fileFilter: fileFilter
 });
 

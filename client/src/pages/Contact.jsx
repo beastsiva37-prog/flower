@@ -23,6 +23,7 @@ const Contact = () => {
   const [formErrors, setFormErrors] = useState({});
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [waUrl, setWaUrl] = useState('');
+  const [submitMessage, setSubmitMessage] = useState('');
 
   useEffect(() => {
     const fetchShop = async () => {
@@ -69,7 +70,7 @@ const Contact = () => {
 
     try {
       // 1. Save Enquiry Order in DB
-      await API.post('/orders', {
+      const res = await API.post('/orders', {
         customerName: formData.name,
         phone: formData.phone,
         productOrService: formData.productOrService,
@@ -78,13 +79,27 @@ const Contact = () => {
         orderStatus: 'New'
       });
 
+      const emailStatus = res.data?.emailStatus;
+      const emailError = res.data?.emailError;
+
+      let msg = 'Enquiry saved successfully.';
+      if (emailStatus === 'success') {
+        msg += ' Email sent to owner.';
+      } else if (emailStatus === 'failed') {
+        msg += ` Email failed: ${emailError || 'unknown error'}`;
+      } else {
+        msg += ' Email not configured.';
+      }
+
+      setSubmitMessage(msg);
+
       // 2. Generate WhatsApp URL
       const text = `Vanakkam M.K. MuthuSamy Flower Shop,\n\nI have submitted an inquiry.\n\n*Details:*\n- *Name:* ${formData.name}\n- *Phone:* ${formData.phone}\n- *Topic:* ${formData.productOrService}\n\n*Message:* ${formData.message}`;
       const compiledUrl = `https://wa.me/${shop.whatsappNumber}?text=${encodeURIComponent(text)}`;
       setWaUrl(compiledUrl);
       
       setIsSubmitted(true);
-      alert('Enquiry sent successfully. Shop owner will contact you soon.');
+      alert(msg);
       
       // Reset input fields
       setFormData({
@@ -177,7 +192,7 @@ const Contact = () => {
                 </div>
                 <h3 className="text-2xl font-bold font-heading text-maroon">Inquiry Sent!</h3>
                 <p className="text-darktext/70 font-body text-sm leading-relaxed font-semibold">
-                  Enquiry sent successfully. Shop owner will contact you soon.
+                  {submitMessage}
                 </p>
                 <div className="pt-4 flex flex-col gap-3">
                   <a

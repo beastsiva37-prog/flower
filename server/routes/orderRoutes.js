@@ -29,7 +29,7 @@ router.delete('/:id', authMiddleware, orderController.deleteOrder);
 router.get('/test-email', async (req, res) => {
   try {
     const sendNotificationEmail = require('../utils/sendNotificationEmail');
-    await sendNotificationEmail({
+    const result = await sendNotificationEmail({
       customerName: 'Test Siva',
       phone: '9342913781',
       productOrService: 'Test Stage Decoration',
@@ -37,7 +37,11 @@ router.get('/test-email', async (req, res) => {
       message: 'This is a test email inquiry notification from M.K. MuthuSamy Flower Shop.',
       createdAt: new Date()
     });
-    res.json({ success: true, message: 'Test email notification triggered successfully' });
+    if (result && result.success) {
+      res.json({ success: true, message: 'Test email notification triggered successfully' });
+    } else {
+      res.status(500).json({ success: false, message: 'Email failed', error: result ? result.error : 'Unknown SMTP error' });
+    }
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

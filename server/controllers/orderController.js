@@ -62,7 +62,7 @@ exports.createOrder = async (req, res) => {
       responsePayload.emailStatus = "failed";
       responsePayload.emailError = emailResult.error;
     } else if (emailResult && emailResult.success) {
-      responsePayload.emailStatus = "sent";
+      responsePayload.emailStatus = "success";
     }
 
     res.status(201).json(responsePayload);

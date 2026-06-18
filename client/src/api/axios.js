@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create Axios Instance
 const API = axios.create({
-  baseURL: 'http://localhost:5001/api'
+  baseURL: 'https://flower-shop-server-u3av.onrender.com/api'
 });
 
 // Request Interceptor to attach Authorization Header

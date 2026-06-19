@@ -34,4 +34,14 @@ router.put('/:id', authMiddleware, upload.array('images', 10), serviceController
 // @access  Admin
 router.delete('/:id', authMiddleware, serviceController.deleteService);
 
+// @route   PUT api/services/:id/view
+// @desc    Increment service views
+// @access  Public
+router.put('/:id/view', serviceController.incrementViews);
+
+// @route   PUT api/services/:id/click
+// @desc    Increment service clicks
+// @access  Public
+router.put('/:id/click', serviceController.incrementClicks);
+
 module.exports = router;

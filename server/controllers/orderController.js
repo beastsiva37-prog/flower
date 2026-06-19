@@ -15,7 +15,7 @@ exports.getOrders = async (req, res) => {
 // Create Order (Public)
 exports.createOrder = async (req, res) => {
   try {
-    let { customerName, name, phone, productOrService, subject, type, message } = req.body;
+    let { customerName, name, phone, productOrService, subject, type, message, productId, serviceId } = req.body;
 
     // Map alternate field names
     if (!customerName && name) {
@@ -35,10 +35,26 @@ exports.createOrder = async (req, res) => {
       productOrService: productOrService.trim(),
       type: type || 'Contact Enquiry',
       message: message.trim(),
-      orderStatus: 'New'
+      orderStatus: 'New',
+      productId: productId || undefined,
+      serviceId: serviceId || undefined
     });
 
     const savedOrder = await newOrder.save();
+
+    // Increment enquiry counts if applicable
+    if (savedOrder.productId) {
+      const Product = require('../models/Product');
+      await Product.findByIdAndUpdate(savedOrder.productId, { $inc: { enquiryCount: 1 } }).catch(err => {
+        console.error('Failed to increment product enquiry count:', err.message);
+      });
+    }
+    if (savedOrder.serviceId) {
+      const Service = require('../models/Service');
+      await Service.findByIdAndUpdate(savedOrder.serviceId, { $inc: { enquiryCount: 1 } }).catch(err => {
+        console.error('Failed to increment service enquiry count:', err.message);
+      });
+    }
 
     // Trigger local console.log notification
     console.log('====================================');

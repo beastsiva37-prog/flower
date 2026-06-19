@@ -19,4 +19,14 @@ router.post('/', authMiddleware, upload.array('images', 10), galleryController.u
 // @access  Admin
 router.delete('/:id', authMiddleware, galleryController.deleteImage);
 
+// @route   PUT api/gallery/:id/view
+// @desc    Increment gallery item views
+// @access  Public
+router.put('/:id/view', galleryController.incrementViews);
+
+// @route   PUT api/gallery/:id/click
+// @desc    Increment gallery item clicks
+// @access  Public
+router.put('/:id/click', galleryController.incrementClicks);
+
 module.exports = router;

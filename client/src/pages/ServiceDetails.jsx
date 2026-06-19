@@ -5,7 +5,7 @@ import API from '../api/axios';
 import OrderModal from '../components/OrderModal';
 import garland2 from '../assets/garland2.png';
 import getImageUrl from '../utils/getImageUrl';
-
+import SEO from '../components/SEO';
 
 const ServiceDetails = () => {
   const { id } = useParams();
@@ -36,10 +36,19 @@ const ServiceDetails = () => {
     { name: 'Modern Elegant Vibe', desc: 'Minimalist contemporary styles for receptions and corporate gatherings.' }
   ];
 
+  const incrementServiceView = async () => {
+    try {
+      await API.put(`/services/${id}/view`);
+    } catch (err) {
+      console.error('Error tracking service view:', err);
+    }
+  };
+
   // Scroll to top on id change
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     fetchServiceDetails();
+    incrementServiceView();
   }, [id]);
 
   const fetchServiceDetails = async () => {
@@ -172,6 +181,13 @@ const ServiceDetails = () => {
 
   return (
     <div className="pt-28 pb-24 bg-ivory min-h-screen font-body text-darktext text-sm">
+      {/* SEO Tag */}
+      <SEO 
+        title={`${service.serviceName} - Flower Decoration Services`} 
+        description={`Book premium decoration setup for ${service.serviceName} starting from ₹${service.startingPrice} by K. Muthusamy in Jayankondam.`}
+        pagePath={`/services/${service._id}`}
+      />
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Navigation Breadcrumb, Back button & Prev/Next Flipkart Style navigation */}

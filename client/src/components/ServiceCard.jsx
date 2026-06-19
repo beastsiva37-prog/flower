@@ -3,12 +3,18 @@ import { useNavigate } from 'react-router-dom';
 import { Sparkles, ShoppingBag } from 'lucide-react';
 import garland2 from '../assets/garland2.png';
 import getImageUrl from '../utils/getImageUrl';
+import API from '../api/axios';
 
 const ServiceCard = ({ service, onOrder }) => {
   const { _id, serviceName, description, startingPrice, imageUrl, category } = service;
   const navigate = useNavigate();
 
-  const handleCardClick = () => {
+  const handleCardClick = async () => {
+    try {
+      await API.put(`/services/${_id}/click`);
+    } catch (err) {
+      console.error('Error tracking service click:', err);
+    }
     navigate(`/services/${_id}`);
   };
 
@@ -24,7 +30,6 @@ const ServiceCard = ({ service, onOrder }) => {
           alt={serviceName} 
           className="w-full h-full object-cover group-hover:scale-105 transition-all duration-500"
           onError={(e) => {
-            // Fallback if image fails to load
             e.target.src = garland2;
           }}
         />
@@ -51,8 +56,13 @@ const ServiceCard = ({ service, onOrder }) => {
           </div>
 
           <button
-            onClick={(e) => {
+            onClick={async (e) => {
               e.stopPropagation();
+              try {
+                await API.put(`/services/${_id}/click`);
+              } catch (err) {
+                console.error(err);
+              }
               onOrder(service);
             }}
             className="flex items-center space-x-2 bg-maroon text-white px-5 py-3 rounded-full text-sm font-semibold hover:bg-maroon-dark hover:scale-105 transition-custom shadow-md"

@@ -6,6 +6,9 @@ import ProductCard from '../components/ProductCard';
 import ServiceCard from '../components/ServiceCard';
 import OrderModal from '../components/OrderModal';
 import flowerImage from '../assets/flower.png';
+import TrustSection from '../components/TrustSection';
+import ReviewSection from '../components/ReviewSection';
+import SEO from '../components/SEO';
 
 const Home = () => {
   const [shop, setShop] = useState({
@@ -44,6 +47,13 @@ const Home = () => {
 
   return (
     <div>
+      {/* SEO Tag */}
+      <SEO 
+        title="Fresh Flowers & Traditional Garlands in Jayankondam" 
+        description="M.K. MuthuSamy Flower Shop in Jayankondam offers premium fresh flowers, temple garlands, marriage stage decorations, and custom floral designs with 40+ years of trust."
+        pagePath="/"
+      />
+
       {/* Hero Section */}
       <section className="relative h-screen min-h-[600px] flex items-center bg-black overflow-hidden">
         {/* Background Image overlayed with dark filters */}
@@ -138,6 +148,9 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Trust legacy badges */}
+      <TrustSection />
+
       {/* Featured Services */}
       <section className="py-20 bg-white border-y border-rosepink/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -213,6 +226,9 @@ const Home = () => {
           )}
         </div>
       </section>
+
+      {/* Review Section */}
+      <ReviewSection />
 
       {/* Call to Action Banner */}
       <section className="bg-maroon py-16 text-white text-center border-t-4 border-gold">

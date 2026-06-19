@@ -30,6 +30,16 @@ const orderSchema = new mongoose.Schema({
     type: String,
     enum: ['New', 'Contacted', 'Completed'],
     default: 'New'
+  },
+  productId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Product',
+    required: false
+  },
+  serviceId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Service',
+    required: false
   }
 }, { timestamps: true });
 

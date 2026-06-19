@@ -34,4 +34,14 @@ router.put('/:id', authMiddleware, upload.array('images', 10), productController
 // @access  Admin
 router.delete('/:id', authMiddleware, productController.deleteProduct);
 
+// @route   PUT api/products/:id/view
+// @desc    Increment product views
+// @access  Public
+router.put('/:id/view', productController.incrementViews);
+
+// @route   PUT api/products/:id/click
+// @desc    Increment product clicks
+// @access  Public
+router.put('/:id/click', productController.incrementClicks);
+
 module.exports = router;

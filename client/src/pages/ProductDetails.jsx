@@ -6,6 +6,7 @@ import OrderModal from '../components/OrderModal';
 import ProductCard from '../components/ProductCard';
 import garland1 from '../assets/garland1.png';
 import getImageUrl from '../utils/getImageUrl';
+import SEO from '../components/SEO';
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -15,6 +16,7 @@ const ProductDetails = () => {
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [selectedOption, setSelectedOption] = useState(null);
 
   // Gallery states
   const [activeImageIndex, setActiveImageIndex] = useState(0);
@@ -25,10 +27,19 @@ const ProductDetails = () => {
   const [showOrderModal, setShowOrderModal] = useState(false);
   const [whatsappNumber, setWhatsappNumber] = useState('9345229653');
 
+  const incrementProductView = async () => {
+    try {
+      await API.put(`/products/${id}/view`);
+    } catch (err) {
+      console.error('Error tracking product view:', err);
+    }
+  };
+
   // Scroll to top on id change
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     fetchProductDetails();
+    incrementProductView();
   }, [id]);
 
   const fetchProductDetails = async () => {
@@ -39,6 +50,14 @@ const ProductDetails = () => {
       const res = await API.get(`/products/${id}`);
       setProduct(res.data);
       setActiveImageIndex(0);
+
+      if (res.data) {
+        if (res.data.priceType === 'options' && res.data.priceOptions && res.data.priceOptions.length > 0) {
+          setSelectedOption(res.data.priceOptions[0]);
+        } else {
+          setSelectedOption(null);
+        }
+      }
 
       // 2. Fetch all products to filter related ones
       const [allProdRes, shopRes] = await Promise.all([
@@ -117,6 +136,13 @@ const ProductDetails = () => {
 
   return (
     <div className="pt-28 pb-20 bg-ivory min-h-screen font-body text-darktext text-sm">
+      {/* SEO Tag */}
+      <SEO 
+        title={`${product.productName} - Fresh Flower Garlands`} 
+        description={`Order ${product.productName} starting from low rates at M.K. MuthuSamy Flower Shop in Jayankondam. Sourced daily from local farms.`}
+        pagePath={`/products/${product._id}`}
+      />
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Navigation Breadcrumb & Back button */}
@@ -214,10 +240,37 @@ const ProductDetails = () => {
 
                 {/* Starting price block */}
                 <div className="border-y border-rosepink/10 py-4 mt-2 flex items-baseline space-x-3">
-                  <span className="text-xs text-darktext/40 uppercase tracking-widest font-semibold block">Price Offer</span>
-                  <span className="text-4xl font-black font-heading text-forest">₹{product.price}</span>
+                  <span className="text-xs text-darktext/40 uppercase tracking-widest font-semibold block">
+                    {product.priceType === 'options' ? 'Selected Price' : 'Price Offer'}
+                  </span>
+                  <span className="text-4xl font-black font-heading text-forest">
+                    ₹{selectedOption ? selectedOption.amount : product.price}
+                  </span>
                   <span className="text-xs text-forest/75 font-bold bg-forest/10 px-2 py-0.5 rounded">Special Rate</span>
                 </div>
+
+                {/* Option Selector */}
+                {product.priceType === 'options' && product.priceOptions && product.priceOptions.length > 0 && (
+                  <div className="space-y-3 pt-2">
+                    <h3 className="font-bold text-xs uppercase text-darktext/50 tracking-wider">Choose Pricing Option:</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {product.priceOptions.map((opt, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => setSelectedOption(opt)}
+                          className={`px-4 py-2.5 rounded-xl border text-xs font-bold transition-all duration-200 ${
+                            selectedOption?.label === opt.label
+                              ? 'border-maroon bg-maroon text-white shadow-md'
+                              : 'border-rosepink/25 bg-white text-darktext/80 hover:border-maroon/50'
+                          }`}
+                        >
+                          {opt.label} - ₹{opt.amount}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Description */}
                 <div className="space-y-2">
@@ -336,6 +389,7 @@ const ProductDetails = () => {
           type="Product"
           whatsappNumber={whatsappNumber}
           onClose={() => setShowOrderModal(false)}
+          selectedOption={selectedOption}
         />
       )}
     </div>

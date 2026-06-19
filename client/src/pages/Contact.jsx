@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MapPin, Phone, MessageSquare, Clock, User, CheckCircle2 } from 'lucide-react';
 import API from '../api/axios';
+import SEO from '../components/SEO';
 
 const Contact = () => {
   const [shop, setShop] = useState({
@@ -111,6 +112,13 @@ const Contact = () => {
 
   return (
     <div className="pt-24 min-h-screen bg-ivory">
+      {/* SEO Tag */}
+      <SEO 
+        title="Contact Us - Phone Numbers & Shop Address" 
+        description="Contact proprietor K. Muthusamy for booking enquiries. Call +919345229653 or +918760246394, or visit our shop in Jayankondam."
+        pagePath="/contact"
+      />
+
       {/* Banner */}
       <section className="bg-maroon py-16 text-center text-white border-b-4 border-gold">
         <h1 className="text-4xl font-bold font-heading text-gold mb-2">Contact Us</h1>

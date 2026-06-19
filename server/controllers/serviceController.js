@@ -198,3 +198,39 @@ exports.getServiceById = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+// Increment Views
+exports.incrementViews = async (req, res) => {
+  try {
+    const service = await Service.findByIdAndUpdate(
+      req.params.id,
+      { $inc: { views: 1 } },
+      { new: true }
+    );
+    if (!service) {
+      return res.status(404).json({ message: 'Service not found' });
+    }
+    res.json({ success: true, views: service.views });
+  } catch (err) {
+    console.error('Error incrementing service views:', err.message);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// Increment Clicks
+exports.incrementClicks = async (req, res) => {
+  try {
+    const service = await Service.findByIdAndUpdate(
+      req.params.id,
+      { $inc: { clicks: 1 } },
+      { new: true }
+    );
+    if (!service) {
+      return res.status(404).json({ message: 'Service not found' });
+    }
+    res.json({ success: true, clicks: service.clicks });
+  } catch (err) {
+    console.error('Error incrementing service clicks:', err.message);
+    res.status(500).json({ message: 'Server error' });
+  }
+};

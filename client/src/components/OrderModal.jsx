@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, CheckCircle2, MessageSquare, Send } from 'lucide-react';
 import API from '../api/axios';
 
-const OrderModal = ({ item, type, whatsappNumber = '9345229653', onClose }) => {
+const OrderModal = ({ item, type, whatsappNumber = '9345229653', onClose, selectedOption: passedSelectedOption }) => {
   const [customerName, setCustomerName] = useState('');
   const [phone, setPhone] = useState('');
   const [message, setMessage] = useState('');
@@ -11,6 +11,7 @@ const OrderModal = ({ item, type, whatsappNumber = '9345229653', onClose }) => {
   const [error, setError] = useState('');
   const [submitMessage, setSubmitMessage] = useState('');
   const [waUrl, setWaUrl] = useState('');
+  const [selectedOption, setSelectedOption] = useState(passedSelectedOption || null);
 
   useEffect(() => {
     // Read customer details from localStorage on mount
@@ -23,6 +24,16 @@ const OrderModal = ({ item, type, whatsappNumber = '9345229653', onClose }) => {
     }
   }, []);
 
+  useEffect(() => {
+    if (passedSelectedOption) {
+      setSelectedOption(passedSelectedOption);
+    } else if (item && item.priceType === 'options' && item.priceOptions && item.priceOptions.length > 0) {
+      setSelectedOption(item.priceOptions[0]);
+    } else {
+      setSelectedOption(null);
+    }
+  }, [passedSelectedOption, item]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!customerName || !phone) {
@@ -33,14 +44,20 @@ const OrderModal = ({ item, type, whatsappNumber = '9345229653', onClose }) => {
     setLoading(true);
     setError('');
 
+    const formattedProductOrService = selectedOption
+      ? `${item.productName || item.serviceName} (${selectedOption.label} - ₹${selectedOption.amount})`
+      : (item.productName || item.serviceName);
+
     try {
       // POST order details to Mongoose backend database
       const res = await API.post('/orders', {
         customerName,
         phone,
-        productOrService: item.productName || item.serviceName,
+        productOrService: formattedProductOrService,
         type,
-        message
+        message,
+        productId: type === 'Product' ? item._id : undefined,
+        serviceId: type === 'Service' ? item._id : undefined
       });
 
       const emailStatus = res.data?.emailStatus;
@@ -70,7 +87,10 @@ const OrderModal = ({ item, type, whatsappNumber = '9345229653', onClose }) => {
   };
 
   const handleWhatsAppRedirect = () => {
-    const targetUrl = waUrl || `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Vanakkam M.K. MuthuSamy Flower Shop, I want to order ${item.productName || item.serviceName}. Please share details.`)}`;
+    const formattedName = selectedOption
+      ? `${item.productName || item.serviceName} (${selectedOption.label} - ₹${selectedOption.amount})`
+      : (item.productName || item.serviceName);
+    const targetUrl = waUrl || `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Vanakkam M.K. MuthuSamy Flower Shop, I want to order ${formattedName}. Please share details.`)}`;
     window.open(targetUrl, '_blank', 'noopener,noreferrer');
     onClose();
   };
@@ -149,12 +169,32 @@ const OrderModal = ({ item, type, whatsappNumber = '9345229653', onClose }) => {
               {/* Item Selected */}
               <div className="flex flex-col">
                 <label className="text-xs font-semibold text-darktext/50 mb-1">Selected {type}</label>
-                <input 
-                  type="text" 
-                  value={item.productName || item.serviceName || ''} 
-                  className="px-3 py-2 rounded-lg border border-rosepink/35 bg-ivory font-bold text-maroon outline-none cursor-not-allowed"
-                  readOnly 
-                />
+                {item.priceType === 'options' && item.priceOptions && item.priceOptions.length > 0 ? (
+                  <select
+                    value={selectedOption ? JSON.stringify(selectedOption) : ''}
+                    onChange={(e) => {
+                      try {
+                        setSelectedOption(JSON.parse(e.target.value));
+                      } catch (err) {
+                        console.error('Failed to parse selected option:', err);
+                      }
+                    }}
+                    className="px-3 py-2 rounded-lg border border-rosepink/35 bg-ivory font-bold text-maroon outline-none"
+                  >
+                    {item.priceOptions.map((opt, idx) => (
+                      <option key={idx} value={JSON.stringify(opt)}>
+                        {item.productName || item.serviceName} ({opt.label} - ₹{opt.amount})
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input 
+                    type="text" 
+                    value={item.productName || item.serviceName || ''} 
+                    className="px-3 py-2 rounded-lg border border-rosepink/35 bg-ivory font-bold text-maroon outline-none cursor-not-allowed"
+                    readOnly 
+                  />
+                )}
               </div>
 
               {/* Message */}

@@ -57,7 +57,7 @@ exports.uploadProductImages = async (req, res) => {
 // Create Product
 exports.createProduct = async (req, res) => {
   try {
-    const { productName, category, description, price, isAvailable, imageUrl: bodyImageUrl, images: bodyImages } = req.body;
+    const { productName, category, description, price, isAvailable, imageUrl: bodyImageUrl, images: bodyImages, priceType, priceOptions } = req.body;
     
     let imageUrl = bodyImageUrl || '';
     let images = [];
@@ -90,6 +90,15 @@ exports.createProduct = async (req, res) => {
       return res.status(400).json({ message: 'At least one product image is required' });
     }
 
+    let parsedPriceOptions = [];
+    if (priceOptions) {
+      try {
+        parsedPriceOptions = typeof priceOptions === 'string' ? JSON.parse(priceOptions) : priceOptions;
+      } catch (e) {
+        console.error('Failed to parse priceOptions:', e);
+      }
+    }
+
     const newProduct = new Product({
       productName,
       category,
@@ -97,7 +106,9 @@ exports.createProduct = async (req, res) => {
       price: Number(price),
       imageUrl,
       images,
-      isAvailable: isAvailable === 'true' || isAvailable === true
+      isAvailable: isAvailable === 'true' || isAvailable === true,
+      priceType: priceType || 'fixed',
+      priceOptions: parsedPriceOptions
     });
 
     const savedProduct = await newProduct.save();
@@ -111,7 +122,7 @@ exports.createProduct = async (req, res) => {
 // Update Product
 exports.updateProduct = async (req, res) => {
   try {
-    const { productName, category, description, price, isAvailable, imageUrl: bodyImageUrl, images: bodyImages } = req.body;
+    const { productName, category, description, price, isAvailable, imageUrl: bodyImageUrl, images: bodyImages, priceType, priceOptions } = req.body;
     let product = await Product.findById(req.params.id);
 
     if (!product) {
@@ -123,6 +134,17 @@ exports.updateProduct = async (req, res) => {
     product.description = description || product.description;
     product.price = price ? Number(price) : product.price;
     product.isAvailable = isAvailable !== undefined ? (isAvailable === 'true' || isAvailable === true) : product.isAvailable;
+    
+    if (priceType !== undefined) {
+      product.priceType = priceType;
+    }
+    if (priceOptions !== undefined) {
+      try {
+        product.priceOptions = typeof priceOptions === 'string' ? JSON.parse(priceOptions) : priceOptions;
+      } catch (e) {
+        console.error('Failed to parse priceOptions on update:', e);
+      }
+    }
 
     let images = [];
     if (bodyImages) {
@@ -194,6 +216,42 @@ exports.deleteProduct = async (req, res) => {
     res.json({ message: 'Product deleted successfully' });
   } catch (err) {
     console.error(err.message);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// Increment Views
+exports.incrementViews = async (req, res) => {
+  try {
+    const product = await Product.findByIdAndUpdate(
+      req.params.id,
+      { $inc: { views: 1 } },
+      { new: true }
+    );
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+    res.json({ success: true, views: product.views });
+  } catch (err) {
+    console.error('Error incrementing product views:', err.message);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// Increment Clicks
+exports.incrementClicks = async (req, res) => {
+  try {
+    const product = await Product.findByIdAndUpdate(
+      req.params.id,
+      { $inc: { clicks: 1 } },
+      { new: true }
+    );
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+    res.json({ success: true, clicks: product.clicks });
+  } catch (err) {
+    console.error('Error incrementing product clicks:', err.message);
     res.status(500).json({ message: 'Server error' });
   }
 };

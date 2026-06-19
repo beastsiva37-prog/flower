@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ShieldCheck, Heart, User, Sparkles } from 'lucide-react';
 import API from '../api/axios';
 import aboutImage from '../assets/about.png';
+import SEO from '../components/SEO';
 
 const About = () => {
   const [shop, setShop] = useState({
@@ -26,6 +27,13 @@ const About = () => {
 
   return (
     <div className="pt-24 min-h-screen bg-ivory">
+      {/* SEO Tag */}
+      <SEO 
+        title="About Us - 40+ Years of Traditional Floristry" 
+        description="Learn about the heritage of M.K. MuthuSamy Flower Shop, serving Jayankondam and surrounding regions with fresh garlands and stage decorations since 1986."
+        pagePath="/about"
+      />
+
       {/* Banner */}
       <section className="bg-maroon py-16 text-center text-white border-b-4 border-gold">
         <h1 className="text-4xl font-bold font-heading text-gold mb-2">About Our Family Business</h1>

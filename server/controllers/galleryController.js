@@ -89,3 +89,39 @@ exports.deleteImage = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+// Increment Views
+exports.incrementViews = async (req, res) => {
+  try {
+    const galleryItem = await GalleryItem.findByIdAndUpdate(
+      req.params.id,
+      { $inc: { views: 1 } },
+      { new: true }
+    );
+    if (!galleryItem) {
+      return res.status(404).json({ message: 'Gallery item not found' });
+    }
+    res.json({ success: true, views: galleryItem.views });
+  } catch (err) {
+    console.error('Error incrementing gallery item views:', err.message);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// Increment Clicks
+exports.incrementClicks = async (req, res) => {
+  try {
+    const galleryItem = await GalleryItem.findByIdAndUpdate(
+      req.params.id,
+      { $inc: { clicks: 1 } },
+      { new: true }
+    );
+    if (!galleryItem) {
+      return res.status(404).json({ message: 'Gallery item not found' });
+    }
+    res.json({ success: true, clicks: galleryItem.clicks });
+  } catch (err) {
+    console.error('Error incrementing gallery item clicks:', err.message);
+    res.status(500).json({ message: 'Server error' });
+  }
+};

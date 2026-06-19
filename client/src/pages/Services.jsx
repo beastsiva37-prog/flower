@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import API from '../api/axios';
 import ServiceCard from '../components/ServiceCard';
 import OrderModal from '../components/OrderModal';
+import SEO from '../components/SEO';
 
 const Services = () => {
   const [services, setServices] = useState([]);
@@ -52,6 +53,13 @@ const Services = () => {
 
   return (
     <div className="pt-24 min-h-screen bg-ivory">
+      {/* SEO Tag */}
+      <SEO 
+        title="Premium Flower Decoration Services" 
+        description="Explore our range of flower decoration services in Jayankondam, including wedding stage decorators, temple festivals, and custom religious alangaram."
+        pagePath="/services"
+      />
+
       {/* Header Banner */}
       <section className="bg-maroon py-16 text-center text-white border-b-4 border-gold">
         <h1 className="text-4xl font-bold font-heading text-gold mb-2">Our Decoration Services</h1>

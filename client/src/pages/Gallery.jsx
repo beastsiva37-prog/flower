@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-// Updated client/src/pages/Gallery.jsx to use the unified getImageUrl helper for Cloudinary compatibility
 import { ZoomIn, X } from 'lucide-react';
 import API from '../api/axios';
 import garland3 from '../assets/garland3.png';
 import getImageUrl from '../utils/getImageUrl';
+import SEO from '../components/SEO';
 
 const Gallery = () => {
   const [gallery, setGallery] = useState([]);
@@ -26,8 +26,24 @@ const Gallery = () => {
     fetchGallery();
   }, []);
 
+  const handleImageClick = async (item) => {
+    try {
+      await API.put(`/gallery/${item._id}/click`);
+    } catch (err) {
+      console.error('Error tracking gallery image click:', err);
+    }
+    setSelectedImage(item);
+  };
+
   return (
     <div className="pt-24 min-h-screen bg-ivory">
+      {/* SEO Tag */}
+      <SEO 
+        title="Our Work Portfolio Gallery" 
+        description="See pictures of our handcrafting temple flower decoration garlands, marriage stages decoration designs and luxury arrangements in Jayankondam."
+        pagePath="/gallery"
+      />
+
       {/* Header Banner */}
       <section className="bg-maroon py-16 text-center text-white border-b-4 border-gold">
         <h1 className="text-4xl font-bold font-heading text-gold mb-2">Our Work Portfolio</h1>
@@ -44,7 +60,7 @@ const Gallery = () => {
             {gallery.map(item => (
               <div 
                 key={item._id}
-                onClick={() => setSelectedImage(item)}
+                onClick={() => handleImageClick(item)}
                 className="relative group bg-white rounded-xl overflow-hidden border border-rosepink/15 shadow-sm hover:shadow-premium hover:-translate-y-1 transition-all duration-300 cursor-pointer h-64"
               >
                 <img 

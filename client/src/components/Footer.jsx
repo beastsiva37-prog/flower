@@ -100,7 +100,7 @@ const Footer = () => {
             &copy; 2026 {shop.shopName} Flower Shop. All Rights Reserved.
           </p>
           <p>
-            Designed for K. Muthusamy | Developed by <Link to="/login" className="hover:text-gold underline">Antigravity Admin</Link>
+            Designed for K. Muthusamy | Developed by <Link to="/login" className="hover:text-gold underline">stackkraft</Link>
           </p>
         </div>
       </div>

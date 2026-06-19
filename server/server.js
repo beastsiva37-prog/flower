@@ -33,6 +33,8 @@ app.use('/api/services', require('./routes/serviceRoutes'));
 app.use('/api/gallery', require('./routes/galleryRoutes'));
 app.use('/api/orders', require('./routes/orderRoutes')); // Handle product/service order and contact enquiries
 app.use('/api/customers', require('./routes/customerRoutes'));
+app.use('/api/reviews', require('./routes/reviewRoutes'));
+app.use('/api/analytics', require('./routes/analyticsRoutes'));
 
 // Cloudinary connection test route
 app.get('/api/cloudinary-test', (req, res) => {

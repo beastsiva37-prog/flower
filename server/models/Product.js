@@ -30,6 +30,30 @@ const productSchema = new mongoose.Schema({
   isAvailable: {
     type: Boolean,
     default: true
+  },
+  priceType: {
+    type: String,
+    enum: ['fixed', 'options'],
+    default: 'fixed'
+  },
+  priceOptions: {
+    type: [{
+      label: { type: String, required: true },
+      amount: { type: Number, required: true }
+    }],
+    default: []
+  },
+  views: {
+    type: Number,
+    default: 0
+  },
+  clicks: {
+    type: Number,
+    default: 0
+  },
+  enquiryCount: {
+    type: Number,
+    default: 0
   }
 }, { timestamps: true });
 

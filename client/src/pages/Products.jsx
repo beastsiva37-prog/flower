@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import API from '../api/axios';
 import ProductCard from '../components/ProductCard';
 import OrderModal from '../components/OrderModal';
+import SEO from '../components/SEO';
 
 const Products = () => {
   const [products, setProducts] = useState([]);
@@ -52,6 +53,13 @@ const Products = () => {
 
   return (
     <div className="pt-24 min-h-screen bg-ivory">
+      {/* SEO Tag */}
+      <SEO 
+        title="Fresh Flower Collection & Traditional Garlands" 
+        description="Browse our catalogue of fresh flowers, daily temple garlands, custom marriage garlands, and jasmine strings handcrafted at M.K. MuthuSamy Flower Shop."
+        pagePath="/products"
+      />
+
       {/* Header Banner */}
       <section className="bg-maroon py-16 text-center text-white border-b-4 border-gold">
         <h1 className="text-4xl font-bold font-heading text-gold mb-2">Our Flower Collection</h1>
@@ -108,6 +116,7 @@ const Products = () => {
           type="Product"
           whatsappNumber={whatsappNumber}
           onClose={() => setSelectedItem(null)}
+          selectedOption={null}
         />
       )}
     </div>

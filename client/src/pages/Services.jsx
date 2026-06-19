@@ -26,11 +26,22 @@ const Services = () => {
         }
         
         if (servRes.data) {
-          setServices(servRes.data);
-          setFilteredServices(servRes.data);
+          const processed = servRes.data.map(s => {
+            let price = s.startingPrice;
+            if (s.priceType === 'options' && s.priceOptions && s.priceOptions.length > 0) {
+              const amounts = s.priceOptions.map(opt => opt.amount).filter(amt => !isNaN(amt));
+              price = amounts.length > 0 ? Math.min(...amounts) : 0;
+            }
+            if (price < 0) {
+              price = 0;
+            }
+            return { ...s, startingPrice: price };
+          });
+          setServices(processed);
+          setFilteredServices(processed);
           
           // Extract unique categories dynamically
-          const uniqueCats = ['All', ...new Set(servRes.data.map(s => s.category).filter(Boolean))];
+          const uniqueCats = ['All', ...new Set(processed.map(s => s.category).filter(Boolean))];
           setCategories(uniqueCats);
         }
       } catch (err) {

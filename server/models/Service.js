@@ -41,6 +41,18 @@ const serviceSchema = new mongoose.Schema({
   enquiryCount: {
     type: Number,
     default: 0
+  },
+  priceType: {
+    type: String,
+    enum: ["fixed", "options"],
+    default: "fixed"
+  },
+  priceOptions: {
+    type: [{
+      label: { type: String, required: true },
+      amount: { type: Number, required: true }
+    }],
+    default: []
   }
 }, { timestamps: true });
 

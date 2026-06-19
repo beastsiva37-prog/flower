@@ -7,7 +7,25 @@ const { uploadBufferToCloudinary } = require('../utils/uploadToCloudinary');
 exports.getServices = async (req, res) => {
   try {
     const services = await Service.find().sort({ createdAt: -1 });
-    res.json(services);
+    const processedServices = services.map(service => {
+      const s = service.toObject();
+      if (!s.priceType) {
+        s.priceType = 'fixed';
+      }
+      if (s.priceType === 'options') {
+        if (s.priceOptions && s.priceOptions.length > 0) {
+          const amounts = s.priceOptions.map(opt => Number(opt.amount)).filter(amt => !isNaN(amt));
+          s.startingPrice = amounts.length > 0 ? Math.min(...amounts) : 0;
+        } else {
+          s.startingPrice = 0;
+        }
+      }
+      if (s.startingPrice < 0) {
+        s.startingPrice = 0;
+      }
+      return s;
+    });
+    res.json(processedServices);
   } catch (err) {
     console.error(err.message);
     res.status(500).json({ message: 'Server error' });
@@ -43,7 +61,7 @@ exports.uploadServiceImages = async (req, res) => {
 // Create Service
 exports.createService = async (req, res) => {
   try {
-    const { serviceName, description, startingPrice, category, isAvailable, imageUrl: bodyImageUrl, images: bodyImages } = req.body;
+    const { serviceName, description, startingPrice, category, isAvailable, imageUrl: bodyImageUrl, images: bodyImages, priceType, priceOptions } = req.body;
 
     let imageUrl = bodyImageUrl || '';
     let images = [];
@@ -75,14 +93,35 @@ exports.createService = async (req, res) => {
       return res.status(400).json({ message: 'Service image is required' });
     }
 
+    let parsedPriceOptions = [];
+    if (priceOptions) {
+      try {
+        parsedPriceOptions = typeof priceOptions === 'string' ? JSON.parse(priceOptions) : priceOptions;
+      } catch (e) {
+        console.error('Failed to parse priceOptions:', e);
+      }
+    }
+
+    let startingPriceVal = Number(startingPrice);
+    if (priceType === 'options') {
+      if (parsedPriceOptions && parsedPriceOptions.length > 0) {
+        const amounts = parsedPriceOptions.map(opt => Number(opt.amount)).filter(amt => !isNaN(amt));
+        startingPriceVal = amounts.length > 0 ? Math.min(...amounts) : 0;
+      } else {
+        startingPriceVal = 0;
+      }
+    }
+
     const newService = new Service({
       serviceName,
       description,
-      startingPrice: Number(startingPrice),
+      startingPrice: startingPriceVal,
       imageUrl,
       images,
       category,
-      isAvailable: isAvailable !== undefined ? (isAvailable === 'true' || isAvailable === true) : true
+      isAvailable: isAvailable !== undefined ? (isAvailable === 'true' || isAvailable === true) : true,
+      priceType: priceType || 'fixed',
+      priceOptions: parsedPriceOptions
     });
 
     const savedService = await newService.save();
@@ -96,18 +135,47 @@ exports.createService = async (req, res) => {
 // Update Service
 exports.updateService = async (req, res) => {
   try {
-    const { serviceName, description, startingPrice, category, isAvailable, imageUrl: bodyImageUrl, images: bodyImages } = req.body;
+    const { serviceName, description, startingPrice, category, isAvailable, imageUrl: bodyImageUrl, images: bodyImages, priceType, priceOptions } = req.body;
     let service = await Service.findById(req.params.id);
 
     if (!service) {
       return res.status(404).json({ message: 'Service not found' });
     }
 
+    let parsedPriceOptions = undefined;
+    if (priceOptions !== undefined) {
+      try {
+        parsedPriceOptions = typeof priceOptions === 'string' ? JSON.parse(priceOptions) : priceOptions;
+      } catch (e) {
+        console.error('Failed to parse priceOptions on update:', e);
+      }
+    }
+
+    let startingPriceVal = startingPrice ? Number(startingPrice) : service.startingPrice;
+    const currentPriceType = priceType !== undefined ? priceType : (service.priceType || 'fixed');
+    const currentPriceOptions = parsedPriceOptions !== undefined ? parsedPriceOptions : (service.priceOptions || []);
+
+    if (currentPriceType === 'options') {
+      if (currentPriceOptions && currentPriceOptions.length > 0) {
+        const amounts = currentPriceOptions.map(opt => Number(opt.amount)).filter(amt => !isNaN(amt));
+        startingPriceVal = amounts.length > 0 ? Math.min(...amounts) : 0;
+      } else {
+        startingPriceVal = 0;
+      }
+    }
+
     service.serviceName = serviceName || service.serviceName;
     service.description = description || service.description;
-    service.startingPrice = startingPrice ? Number(startingPrice) : service.startingPrice;
+    service.startingPrice = startingPriceVal;
     service.category = category !== undefined ? category : service.category;
     service.isAvailable = isAvailable !== undefined ? (isAvailable === 'true' || isAvailable === true) : service.isAvailable;
+
+    if (priceType !== undefined) {
+      service.priceType = priceType;
+    }
+    if (parsedPriceOptions !== undefined) {
+      service.priceOptions = parsedPriceOptions;
+    }
 
     let images = [];
     if (bodyImages) {
@@ -189,7 +257,22 @@ exports.getServiceById = async (req, res) => {
     if (!service) {
       return res.status(404).json({ message: 'Service not found' });
     }
-    res.json(service);
+    const s = service.toObject();
+    if (!s.priceType) {
+      s.priceType = 'fixed';
+    }
+    if (s.priceType === 'options') {
+      if (s.priceOptions && s.priceOptions.length > 0) {
+        const amounts = s.priceOptions.map(opt => Number(opt.amount)).filter(amt => !isNaN(amt));
+        s.startingPrice = amounts.length > 0 ? Math.min(...amounts) : 0;
+      } else {
+        s.startingPrice = 0;
+      }
+    }
+    if (s.startingPrice < 0) {
+      s.startingPrice = 0;
+    }
+    res.json(s);
   } catch (err) {
     console.error(err.message);
     if (err.kind === 'ObjectId') {

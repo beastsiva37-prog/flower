@@ -26,6 +26,8 @@ const ServiceForm = ({ service, onClose, onSave }) => {
   const [images, setImages] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
+  const [priceType, setPriceType] = useState('fixed');
+  const [priceOptions, setPriceOptions] = useState([{ label: '', amount: '' }]);
 
   useEffect(() => {
     if (service) {
@@ -36,8 +38,27 @@ const ServiceForm = ({ service, onClose, onSave }) => {
       setIsAvailable(service.isAvailable !== false);
       setImageUrl(service.imageUrl || '');
       setImages(service.images || []);
+      setPriceType(service.priceType || 'fixed');
+      setPriceOptions(service.priceOptions && service.priceOptions.length > 0 
+        ? service.priceOptions.map(opt => ({ label: opt.label || '', amount: opt.amount || '' })) 
+        : [{ label: '', amount: '' }]);
     }
   }, [service]);
+
+  const handleAddOption = () => {
+    setPriceOptions([...priceOptions, { label: '', amount: '' }]);
+  };
+
+  const handleRemoveOption = (index) => {
+    const newOptions = priceOptions.filter((_, i) => i !== index);
+    setPriceOptions(newOptions.length > 0 ? newOptions : [{ label: '', amount: '' }]);
+  };
+
+  const handleOptionChange = (index, field, value) => {
+    const newOptions = [...priceOptions];
+    newOptions[index][field] = value;
+    setPriceOptions(newOptions);
+  };
 
   const handleFileUpload = async (e) => {
     const files = Array.from(e.target.files);
@@ -112,14 +133,28 @@ const ServiceForm = ({ service, onClose, onSave }) => {
       return;
     }
 
+    if (priceType === 'options') {
+      const invalid = priceOptions.some(opt => !opt.label.trim() || !opt.amount);
+      if (invalid) {
+        setError('Please fill in all label and amount fields for the price options.');
+        return;
+      }
+    }
+
     const payload = {
       serviceName: serviceName.trim(),
       category,
       description: description.trim(),
-      startingPrice: Number(startingPrice),
+      startingPrice: priceType === 'options' 
+        ? Number(priceOptions[0]?.amount || 0) 
+        : Number(startingPrice),
       isAvailable,
       imageUrl,
-      images
+      images,
+      priceType,
+      priceOptions: priceType === 'options' 
+        ? priceOptions.map(opt => ({ label: opt.label.trim(), amount: Number(opt.amount) })) 
+        : []
     };
 
     try {
@@ -188,15 +223,29 @@ const ServiceForm = ({ service, onClose, onSave }) => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex flex-col">
-              <label className="text-xs font-semibold mb-1.5 text-darktext/60">Starting Price (₹)*</label>
-              <input 
-                type="number" 
-                value={startingPrice} 
-                onChange={(e) => setStartingPrice(e.target.value)} 
-                className="px-3 py-2.5 rounded-xl border border-rosepink/30 outline-none focus:border-maroon focus:ring-1 focus:ring-maroon"
-                placeholder="e.g. 5000"
-                required 
-              />
+              <label className="text-xs font-semibold mb-1.5 text-darktext/60">Pricing Mode</label>
+              <div className="flex items-center space-x-6 h-[42px] border border-rosepink/15 px-4 rounded-xl bg-ivory/20">
+                <label className="flex items-center text-xs font-semibold cursor-pointer">
+                  <input 
+                    type="radio" 
+                    name="priceType" 
+                    checked={priceType === 'fixed'} 
+                    onChange={() => setPriceType('fixed')}
+                    className="mr-2 accent-maroon"
+                  />
+                  Fixed Price
+                </label>
+                <label className="flex items-center text-xs font-semibold cursor-pointer">
+                  <input 
+                    type="radio" 
+                    name="priceType" 
+                    checked={priceType === 'options'} 
+                    onChange={() => setPriceType('options')}
+                    className="mr-2 accent-maroon"
+                  />
+                  Options
+                </label>
+              </div>
             </div>
 
             <div className="flex flex-col">
@@ -225,6 +274,58 @@ const ServiceForm = ({ service, onClose, onSave }) => {
               </div>
             </div>
           </div>
+
+          {priceType === 'fixed' ? (
+            <div className="flex flex-col">
+              <label className="text-xs font-semibold mb-1.5 text-darktext/60">Starting Price (₹)*</label>
+              <input 
+                type="number" 
+                value={startingPrice} 
+                onChange={(e) => setStartingPrice(e.target.value)} 
+                className="px-3 py-2.5 rounded-xl border border-rosepink/30 outline-none focus:border-maroon focus:ring-1 focus:ring-maroon"
+                placeholder="e.g. 5000"
+                required 
+              />
+            </div>
+          ) : (
+            <div className="space-y-3 p-4 border border-rosepink/20 rounded-2xl bg-ivory/10">
+              <label className="text-xs font-bold text-maroon block mb-1">Price Options (Label + Amount)*</label>
+              {priceOptions.map((option, idx) => (
+                <div key={idx} className="flex items-center space-x-2">
+                  <input 
+                    type="text" 
+                    placeholder="e.g. Basic Setup or 10 Feet Stage"
+                    value={option.label}
+                    onChange={(e) => handleOptionChange(idx, 'label', e.target.value)}
+                    className="flex-1 px-3 py-2 rounded-xl border border-rosepink/30 outline-none focus:border-maroon focus:ring-1 focus:ring-maroon bg-white text-xs"
+                    required
+                  />
+                  <input 
+                    type="number" 
+                    placeholder="₹ Amount"
+                    value={option.amount}
+                    onChange={(e) => handleOptionChange(idx, 'amount', e.target.value)}
+                    className="w-28 px-3 py-2 rounded-xl border border-rosepink/30 outline-none focus:border-maroon focus:ring-1 focus:ring-maroon bg-white text-xs"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveOption(idx)}
+                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={handleAddOption}
+                className="mt-2 text-xs font-bold text-maroon hover:underline flex items-center"
+              >
+                + Add Price Option
+              </button>
+            </div>
+          )}
 
           <div className="flex flex-col">
             <label className="text-xs font-semibold mb-1.5 text-darktext/60">Description & Customization Information*</label>

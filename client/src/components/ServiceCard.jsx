@@ -6,8 +6,13 @@ import getImageUrl from '../utils/getImageUrl';
 import API from '../api/axios';
 
 const ServiceCard = ({ service, onOrder }) => {
-  const { _id, serviceName, description, startingPrice, imageUrl, category } = service;
+  const { _id, serviceName, description, startingPrice, imageUrl, category, priceType, priceOptions } = service;
   const navigate = useNavigate();
+
+  const isOptionPricing = priceType === 'options' && priceOptions && priceOptions.length > 0;
+  const lowestOptionAmount = isOptionPricing
+    ? Math.min(...priceOptions.map(opt => opt.amount))
+    : (startingPrice < 0 ? 0 : startingPrice);
 
   const handleCardClick = async () => {
     try {
@@ -51,8 +56,17 @@ const ServiceCard = ({ service, onOrder }) => {
         
         <div className="flex items-center justify-between mt-auto">
           <div className="flex flex-col">
-            <span className="text-xs text-darktext/40 uppercase tracking-wider">Starting Price</span>
-            <span className="text-2xl font-bold font-heading text-forest">₹{startingPrice}</span>
+            <span className="text-xs text-darktext/40 uppercase tracking-wider">
+              {isOptionPricing ? 'Starting From' : 'Starting Price'}
+            </span>
+            <div className="flex items-center space-x-1.5">
+              <span className="text-2xl font-bold font-heading text-forest">₹{lowestOptionAmount}</span>
+              {isOptionPricing && (
+                <span className="bg-gold/20 border border-gold/45 text-gold text-[9px] px-1.5 py-0.5 rounded font-bold tracking-wider uppercase">
+                  Multiple Options
+                </span>
+              )}
+            </div>
           </div>
 
           <button

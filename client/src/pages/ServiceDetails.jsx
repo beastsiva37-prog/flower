@@ -17,6 +17,7 @@ const ServiceDetails = () => {
   const [servicesList, setServicesList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [selectedOption, setSelectedOption] = useState(null);
 
   // Gallery/Lightbox states
   const [activeImageIndex, setActiveImageIndex] = useState(0);
@@ -57,6 +58,23 @@ const ServiceDetails = () => {
     try {
       // 1. Fetch current service
       const res = await API.get(`/services/${id}`);
+      if (res.data) {
+        let price = res.data.startingPrice;
+        if (res.data.priceType === 'options' && res.data.priceOptions && res.data.priceOptions.length > 0) {
+          const amounts = res.data.priceOptions.map(opt => opt.amount).filter(amt => !isNaN(amt));
+          price = amounts.length > 0 ? Math.min(...amounts) : 0;
+        }
+        if (price < 0) {
+          price = 0;
+        }
+        res.data.startingPrice = price;
+
+        if (res.data.priceType === 'options' && res.data.priceOptions && res.data.priceOptions.length > 0) {
+          setSelectedOption(res.data.priceOptions[0]);
+        } else {
+          setSelectedOption(null);
+        }
+      }
       setService(res.data);
       setActiveImageIndex(0);
 
@@ -308,10 +326,37 @@ const ServiceDetails = () => {
 
                 {/* Starting price block */}
                 <div className="border-y border-rosepink/10 py-4 mt-2 flex items-baseline space-x-3">
-                  <span className="text-xs text-darktext/40 uppercase tracking-widest font-semibold block">Booking Rate Starts At</span>
-                  <span className="text-4xl font-black font-heading text-forest">₹{service.startingPrice}</span>
+                  <span className="text-xs text-darktext/40 uppercase tracking-widest font-semibold block">
+                    {service.priceType === 'options' ? 'Starting From' : 'Booking Rate Starts At'}
+                  </span>
+                  <span className="text-4xl font-black font-heading text-forest">
+                    ₹{selectedOption ? selectedOption.amount : service.startingPrice}
+                  </span>
                   <span className="text-xs text-forest/75 font-bold bg-forest/10 px-2 py-0.5 rounded">Setup Included</span>
                 </div>
+
+                {/* Option Selector */}
+                {service.priceType === 'options' && service.priceOptions && service.priceOptions.length > 0 && (
+                  <div className="space-y-3 pt-2">
+                    <h3 className="font-bold text-xs uppercase text-darktext/50 tracking-wider">Choose Pricing Option:</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {service.priceOptions.map((opt, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => setSelectedOption(opt)}
+                          className={`px-4 py-2.5 rounded-xl border text-xs font-bold transition-all duration-200 ${
+                            selectedOption?.label === opt.label
+                              ? 'border-maroon bg-maroon text-white shadow-md'
+                              : 'border-rosepink/25 bg-white text-darktext/80 hover:border-maroon/50'
+                          }`}
+                        >
+                          {opt.label} - ₹{opt.amount}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Description */}
                 <div className="space-y-2">
@@ -515,6 +560,7 @@ const ServiceDetails = () => {
           type="Service"
           whatsappNumber={whatsappNumber}
           onClose={() => setShowOrderModal(false)}
+          selectedOption={selectedOption}
         />
       )}
     </div>

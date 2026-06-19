@@ -60,23 +60,10 @@ app.get('/api/test-email', async (req, res) => {
       message: 'This is a test email inquiry notification from M.K. MuthuSamy Flower Shop.',
       createdAt: new Date()
     });
-    
-    if (result && result.success) {
-      res.json({
-        success: true,
-        message: "Test email sent"
-      });
-    } else {
-      res.status(500).json({
-        success: false,
-        message: "Email failed",
-        error: result ? result.error : 'Unknown SMTP error'
-      });
-    }
+    res.json(result);
   } catch (err) {
     res.status(500).json({
       success: false,
-      message: "Email failed",
       error: err.message
     });
   }

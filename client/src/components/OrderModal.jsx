@@ -9,6 +9,8 @@ const OrderModal = ({ item, type, whatsappNumber = '9345229653', onClose }) => {
   const [isSuccess, setIsSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [submitMessage, setSubmitMessage] = useState('');
+  const [waUrl, setWaUrl] = useState('');
 
   useEffect(() => {
     // Read customer details from localStorage on mount
@@ -33,7 +35,7 @@ const OrderModal = ({ item, type, whatsappNumber = '9345229653', onClose }) => {
 
     try {
       // POST order details to Mongoose backend database
-      await API.post('/orders', {
+      const res = await API.post('/orders', {
         customerName,
         phone,
         productOrService: item.productName || item.serviceName,
@@ -41,8 +43,24 @@ const OrderModal = ({ item, type, whatsappNumber = '9345229653', onClose }) => {
         message
       });
 
+      const emailStatus = res.data?.emailStatus;
+      const emailResult = res.data?.emailResult;
+      const ownerWhatsAppUrl = res.data?.ownerWhatsAppUrl;
+
+      let msg = 'Enquiry saved successfully.';
+      if (emailStatus === 'sent') {
+        msg += '\nEmail notification sent to owner.';
+      } else if (emailStatus === 'failed') {
+        msg += `\nEmail failed: ${emailResult?.error || 'unknown error'}`;
+      }
+
+      setSubmitMessage(msg);
+      if (ownerWhatsAppUrl) {
+        setWaUrl(ownerWhatsAppUrl);
+      }
+
       setIsSuccess(true);
-      alert('Your inquiry has been sent. Shop owner will contact you soon.');
+      alert(msg);
     } catch (err) {
       console.error('Error submitting order in modal:', err);
       setError('Unable to save order. Please check connection and try again.');
@@ -52,10 +70,8 @@ const OrderModal = ({ item, type, whatsappNumber = '9345229653', onClose }) => {
   };
 
   const handleWhatsAppRedirect = () => {
-    const itemName = item.productName || item.serviceName;
-    const text = `Vanakkam M.K. MuthuSamy Flower Shop, I want to order ${itemName}. Please share details.`;
-    const waUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(text)}`;
-    window.open(waUrl, '_blank', 'noopener,noreferrer');
+    const targetUrl = waUrl || `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Vanakkam M.K. MuthuSamy Flower Shop, I want to order ${item.productName || item.serviceName}. Please share details.`)}`;
+    window.open(targetUrl, '_blank', 'noopener,noreferrer');
     onClose();
   };
 
@@ -78,7 +94,7 @@ const OrderModal = ({ item, type, whatsappNumber = '9345229653', onClose }) => {
             </div>
             <h3 className="text-2xl font-bold font-heading text-maroon">Inquiry Sent!</h3>
             <p className="text-darktext/75 text-sm leading-relaxed font-semibold">
-              Your inquiry has been sent. Shop owner will contact you soon.
+              {submitMessage}
             </p>
             <div className="pt-4 space-y-3">
               <button
@@ -86,7 +102,7 @@ const OrderModal = ({ item, type, whatsappNumber = '9345229653', onClose }) => {
                 className="w-full inline-flex items-center justify-center space-x-2 bg-[#25D366] text-white py-3.5 rounded-full font-bold shadow-md hover:bg-[#20ba5a] transition-custom"
               >
                 <MessageSquare size={16} />
-                <span>Chat on WhatsApp</span>
+                <span>WhatsApp Owner</span>
               </button>
               <button 
                 onClick={onClose}

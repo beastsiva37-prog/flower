@@ -80,23 +80,18 @@ const Contact = () => {
       });
 
       const emailStatus = res.data?.emailStatus;
-      const emailError = res.data?.emailError;
+      const emailResult = res.data?.emailResult;
+      const ownerWhatsAppUrl = res.data?.ownerWhatsAppUrl;
 
       let msg = 'Enquiry saved successfully.';
-      if (emailStatus === 'success') {
-        msg += ' Email sent to owner.';
+      if (emailStatus === 'sent') {
+        msg += '\nEmail notification sent to owner.';
       } else if (emailStatus === 'failed') {
-        msg += ` Email failed: ${emailError || 'unknown error'}`;
-      } else {
-        msg += ' Email not configured.';
+        msg += `\nEmail failed: ${emailResult?.error || 'unknown error'}`;
       }
 
       setSubmitMessage(msg);
-
-      // 2. Generate WhatsApp URL
-      const text = `Vanakkam M.K. MuthuSamy Flower Shop,\n\nI have submitted an inquiry.\n\n*Details:*\n- *Name:* ${formData.name}\n- *Phone:* ${formData.phone}\n- *Topic:* ${formData.productOrService}\n\n*Message:* ${formData.message}`;
-      const compiledUrl = `https://wa.me/${shop.whatsappNumber}?text=${encodeURIComponent(text)}`;
-      setWaUrl(compiledUrl);
+      setWaUrl(ownerWhatsAppUrl || `https://wa.me/919342913781`);
       
       setIsSubmitted(true);
       alert(msg);
@@ -196,13 +191,13 @@ const Contact = () => {
                 </p>
                 <div className="pt-4 flex flex-col gap-3">
                   <a
-                    href="https://wa.me/919342913781?text=Vanakkam%20M.K.%20MuthuSamy%20Flower%20Shop,%20I%20sent%20an%20enquiry"
+                    href={waUrl || 'https://wa.me/919342913781'}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center justify-center space-x-2 bg-[#25D366] text-white px-6 py-3.5 rounded-full font-bold shadow-md hover:bg-[#20ba5a]"
                   >
                     <MessageSquare size={16} />
-                    <span>Send WhatsApp to Owner</span>
+                    <span>WhatsApp Owner</span>
                   </a>
                   <button 
                     onClick={() => setIsSubmitted(false)}

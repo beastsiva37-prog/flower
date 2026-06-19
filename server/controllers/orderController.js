@@ -52,18 +52,17 @@ exports.createOrder = async (req, res) => {
     // Send email notification
     const emailResult = await sendNotificationEmail(savedOrder);
 
+    const ownerWhatsAppText = `New enquiry details:\nCustomer Name: ${savedOrder.customerName}\nPhone: ${savedOrder.phone}\nProduct/Service: ${savedOrder.productOrService}\nType: ${savedOrder.type}\nMessage: ${savedOrder.message}`;
+    const ownerWhatsAppUrl = `https://wa.me/919342913781?text=${encodeURIComponent(ownerWhatsAppText)}`;
+
     const responsePayload = {
       success: true,
-      message: "Enquiry saved and owner notification triggered",
-      order: savedOrder
+      message: "Enquiry saved successfully",
+      order: savedOrder,
+      emailStatus: (emailResult && emailResult.success) ? "sent" : "failed",
+      emailResult,
+      ownerWhatsAppUrl
     };
-
-    if (emailResult && !emailResult.success) {
-      responsePayload.emailStatus = "failed";
-      responsePayload.emailError = emailResult.error;
-    } else if (emailResult && emailResult.success) {
-      responsePayload.emailStatus = "success";
-    }
 
     res.status(201).json(responsePayload);
   } catch (err) {
